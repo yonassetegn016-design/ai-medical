@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Diagnosis System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .symptoms-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .symptoms-panel h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .symptoms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .symptom-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #ddd;
+        }
+        
+        .symptom-checkbox:hover {
+            background: #e8f0fe;
+            border-color: #667eea;
+        }
+        
+        .symptom-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .symptom-checkbox label {
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .selected-panel {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .selected-panel h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .selected-symptoms {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 150px;
+            margin-bottom: 20px;
+        }
+        
+        .symptom-tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 13px;
+        }
+        
+        .remove-symptom {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .remove-symptom:hover {
+            color: #ff4444;
+        }
+        
+        .placeholder {
+            color: #999;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .diagnose-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .diagnose-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .clear-btn {
+            width: 100%;
+            padding: 10px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+        }
+        
+        .diagnosis-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .disease-name {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .confidence-high { background: #10b981; color: white; }
+        .confidence-medium { background: #f59e0b; color: white; }
+        .confidence-low { background: #6b7280; color: white; }
+        
+        .severity-critical { background: #dc2626; color: white; }
+        .severity-high { background: #f97316; color: white; }
+        .severity-medium { background: #eab308; color: white; }
+        .severity-low { background: #22c55e; color: white; }
+        
+        .treatments {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
+        }
+        
+        .treatments h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .treatments ul {
+            margin-left: 20px;
+        }
+        
+        .treatments li {
+            margin: 8px 0;
+            color: #555;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .search-box {
+            margin-bottom: 15px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .select-all-btn {
+            margin-bottom: 15px;
+            padding: 8px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Medical Diagnosis System</h1>
+        <p class="subtitle">Select your symptoms for a preliminary diagnosis with treatment recommendations</p>
+        
+        <div class="main-content">
+            <!-- Left Panel: Symptoms -->
+            <div class="symptoms-panel">
+                <h2>📋 Select Your Symptoms</h2>
+                <div class="search-box">
+                    <input type="text" id="searchSymptoms" placeholder="🔍 Search symptoms...">
+                </div>
+                <button class="select-all-btn" onclick="selectAllSymptoms()">✓ Select All</button>
+                <button class="select-all-btn" onclick="clearAllSymptoms()" style="background:#dc2626; margin-left:10px;">✗ Clear All</button>
+                <div class="symptoms-grid" id="symptomsList">
+                    <div class="placeholder">Loading symptoms...</div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Selected -->
+            <div class="selected-panel">
+                <h2>✅ Selected Symptoms</h2>
+                <div class="selected-symptoms" id="selectedSymptoms">
+                    <p class="placeholder">No symptoms selected</p>
+                </div>
+                <button class="diagnose-btn" id="diagnoseBtn">🔍 Get Diagnosis & Treatment</button>
+                <button class="clear-btn" onclick="clearSelectedSymptoms()">Clear All Symptoms</button>
+            </div>
+        </div>
+        
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h2>📊 Diagnosis Results</h2>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your symptoms...</p>
+            </div>
+            <div id="diagnosisResults"></div>
+        </div>
+        
+        <div class="disclaimer">
+            ⚠️ <strong>Medical Disclaimer:</strong> This tool is for informational purposes only. 
+            Always consult a qualified healthcare professional for medical advice, diagnosis, or treatment.
+            If you have a medical emergency, call emergency services immediately.
+        </div>
+    </div>
+    
+    <script>
+        let allSymptoms = [];
+        let selectedSymptoms = [];
+        
+        // Load symptoms on page load
+        async function loadSymptoms() {
+            try {
+                const response = await fetch('/api/symptoms');
+                const data = await response.json();
+                allSymptoms = data.symptoms.sort();
+                renderSymptomsList();
+            } catch (error) {
+                console.error('Error loading symptoms:', error);
+                document.getElementById('symptomsList').innerHTML = '<div class="placeholder">Error loading symptoms. Make sure server is running.</div>';
+            }
+        }
+        
+        // Render symptoms list with checkboxes
+        function renderSymptomsList() {
+            const searchTerm = document.getElementById('searchSymptoms').value.toLowerCase();
+            const filteredSymptoms = allSymptoms.filter(s => s.toLowerCase().includes(searchTerm));
+            
+            const container = document.getElementById('symptomsList');
+            container.innerHTML = filteredSymptoms.map(symptom => `
+                <div class="symptom-checkbox">
+                    <input type="checkbox" id="chk_${symptom}" value="${symptom}" 
+                           onchange="toggleSymptom('${symptom}', this.checked)">
+                    <label for="chk_${symptom}">${symptom.replace(/_/g, ' ')}</label>
+                </div>
+            `).join('');
+            
+            // Re-check previously selected symptoms
+            selectedSymptoms.forEach(symptom => {
+                const chk = document.getElementById(`chk_${symptom}`);
+                if (chk) chk.checked = true;
+            });
+        }
+        
+        // Toggle symptom selection
+        function toggleSymptom(symptom, isChecked) {
+            if (isChecked) {
+                if (!selectedSymptoms.includes(symptom)) {
+                    selectedSymptoms.push(symptom);
+                }
+            } else {
+                selectedSymptoms = selectedSymptoms.filter(s => s !== symptom);
+            }
+            updateSelectedSymptomsUI();
+        }
+        
+        // Select all symptoms
+        function selectAllSymptoms() {
+            allSymptoms.forEach(symptom => {
+                if (!selectedSymptoms.includes(symptom)) {
+                    selectedSymptoms.push(symptom);
+                }
+                const chk = document.getElementById(`chk_${symptom}`);
+                if (chk) chk.checked = true;
+            });
+            updateSelectedSymptomsUI();
+        }
+        
+        // Clear all symptoms (from the grid)
+        function clearAllSymptoms() {
+            selectedSymptoms = [];
+            document.querySelectorAll('#symptomsList input[type="checkbox"]').forEach(chk => {
+                chk.checked = false;
+            });
+            updateSelectedSymptomsUI();
+        }
+        
+        // Clear selected symptoms
+        function clearSelectedSymptoms() {
+            selectedSymptoms = [];
+            document.querySelectorAll('#symptomsList input[type="checkbox"]').forEach(chk => {
+                chk.checked = false;
+            });
+            updateSelectedSymptomsUI();
+        }
+        
+        // Update selected symptoms UI
+        function updateSelectedSymptomsUI() {
+            const container = document.getElementById('selectedSymptoms');
+            if (selectedSymptoms.length === 0) {
+                container.innerHTML = '<p class="placeholder">No symptoms selected</p>';
+                return;
+            }
+            container.innerHTML = selectedSymptoms.map(symptom => `
+                <div class="symptom-tag">
+                    ${symptom.replace(/_/g, ' ')}
+                    <span class="remove-symptom" onclick="toggleSymptom('${symptom}', false)">×</span>
+                </div>
+            `).join('');
+        }
+        
+        // Get diagnosis
+        async function getDiagnosis() {
+            if (selectedSymptoms.length === 0) {
+                alert('Please select at least one symptom');
+                return;
+            }
+            
+            const resultsSection = document.getElementById('resultsSection');
+            const loading = document.getElementById('loading');
+            const diagnosisResults = document.getElementById('diagnosisResults');
+            
+            resultsSection.style.display = 'block';
+            loading.style.display = 'block';
+            diagnosisResults.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/diagnose', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ symptoms: selectedSymptoms })
+                });
+                
+                const data = await response.json();
+                loading.style.display = 'none';
+                
+                if (data.success && data.diagnoses && data.diagnoses.length > 0) {
+                    displayDiagnoses(data.diagnoses);
+                } else {
+                    diagnosisResults.innerHTML = `
+                        <div class="diagnosis-card">
+                            <h3>No matching conditions found</h3>
+                            <p>Please consult a healthcare professional for proper diagnosis.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                loading.style.display = 'none';
+                diagnosisResults.innerHTML = `
+                    <div class="diagnosis-card">
+                        <h3>❌ Connection Error</h3>
+                        <p>Unable to connect to the server. Make sure node server.js is running.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Display diagnoses with treatments
+        function displayDiagnoses(diagnoses) {
+            const diagnosisResults = document.getElementById('diagnosisResults');
+            
+            const diagnosesHTML = diagnoses.map((diagnosis, index) => {
+                let confidenceClass = 'confidence-low';
+                if (diagnosis.confidence >= 70) confidenceClass = 'confidence-high';
+                else if (diagnosis.confidence >= 40) confidenceClass = 'confidence-medium';
+                
+                let severityClass = 'severity-low';
+                if (diagnosis.severity === 'Critical') severityClass = 'severity-critical';
+                else if (diagnosis.severity === 'High') severityClass = 'severity-high';
+                else if (diagnosis.severity === 'Medium') severityClass = 'severity-medium';
+                
+                const borderColor = diagnosis.severity === 'Critical' ? '#dc2626' :
+                                   diagnosis.severity === 'High' ? '#f97316' :
+                                   diagnosis.severity === 'Medium' ? '#eab308' : '#22c55e';
+                
+                return `
+                    <div class="diagnosis-card" style="border-left-color: ${borderColor}; animation-delay: ${index * 0.1}s">
+                        <h3 class="disease-name">${diagnosis.disease}</h3>
+                        <div>
+                            <span class="badge ${confidenceClass}">${diagnosis.confidence}% Match</span>
+                            <span class="badge ${severityClass}">${diagnosis.severity} Severity</span>
+                            <span class="badge" style="background:#667eea; color:white;">${diagnosis.symptomsMatched} symptoms matched</span>
+                        </div>
+                        ${diagnosis.recommendations && diagnosis.recommendations.length > 0 ? `
+                            <div class="treatments">
+                                <h4>💊 Treatment Recommendations:</h4>
+                                <ul>
+                                    ${diagnosis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            diagnosisResults.innerHTML = diagnosesHTML;
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Event listeners
+        document.getElementById('diagnoseBtn').addEventListener('click', getDiagnosis);
+        document.getElementById('searchSymptoms').addEventListener('input', renderSymptomsList);
+        
+        // Initialize
+        loadSymptoms();
+    </script>
+</body>
+</html>
