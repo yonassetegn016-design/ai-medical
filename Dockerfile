@@ -19,8 +19,8 @@ COPY package*.json ./
 # Install Node dependencies
 RUN npm install
 
-# Copy Prolog knowledge base
-COPY diagnosis.pl ./
+# Copy Prolog knowledge base from prolog folder
+COPY prolog/medical.pl ./diagnosis.pl
 
 # Copy application code
 COPY server.js ./
